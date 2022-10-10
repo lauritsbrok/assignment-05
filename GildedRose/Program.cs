@@ -144,4 +144,49 @@ namespace GildedRose
         public int Quality { get; set; }
     }
 
+    public abstract class AbstractItem : Item {
+        protected int QualityDecrease = -1;
+        public virtual void UpdateQuality() {
+            DetermineQualityDecrease();
+            Quality += QualityDecrease;
+
+            SellIn--;
+        }
+
+        public virtual void DetermineQualityDecrease() {
+            if (SellIn < 0) {
+                QualityDecrease *= 2;
+            }
+        }
+    }
+
+
+    public class NormalItem : AbstractItem {
+        
+    }
+    public class Cheese : AbstractItem {
+        public override void DetermineQualityDecrease() {
+            QualityDecrease = 1;
+        }
+    }
+    public class Legendary : AbstractItem {
+        public override void UpdateQuality() {
+        }
+    }
+    public class BackstagePass : AbstractItem {
+        public override void DetermineQualityDecrease() {
+            if (SellIn < 0) {
+                QualityDecrease = 0;
+            }
+            else if (SellIn <= 5) {
+                QualityDecrease = 3;
+            }
+            else if (SellIn <= 10) {
+                QualityDecrease = 2;
+            }
+            else {
+                QualityDecrease = 1;
+            }
+        }
+    }
 }
