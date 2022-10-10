@@ -3,45 +3,26 @@ using System.Collections.Generic;
 
 namespace GildedRose
 {
-    public class Program
-    {
-        IList<Item> Items;
+    public class Program {
+        IList<AbstractItem> Items;
         public static void Main(string[] args)
         {
             System.Console.WriteLine("OMGHAI!");
 
-            var app = new Program()
-                          {
-                              Items = new List<Item>
-                                          {
-                new Item { Name = "+5 Dexterity Vest", SellIn = 10, Quality = 20 },
-                new Item { Name = "Aged Brie", SellIn = 2, Quality = 0 },
-                new Item { Name = "Elixir of the Mongoose", SellIn = 5, Quality = 7 },
-                new Item { Name = "Sulfuras, Hand of Ragnaros", SellIn = 0, Quality = 80 },
-                new Item { Name = "Sulfuras, Hand of Ragnaros", SellIn = -1, Quality = 80 },
-                new Item
-                {
-                    Name = "Backstage passes to a TAFKAL80ETC concert",
-                    SellIn = 15,
-                    Quality = 20
-                },
-                new Item
-                {
-                    Name = "Backstage passes to a TAFKAL80ETC concert",
-                    SellIn = 10,
-                    Quality = 49
-                },
-                new Item
-                {
-                    Name = "Backstage passes to a TAFKAL80ETC concert",
-                    SellIn = 5,
-                    Quality = 49
-                },
-				// this conjured item does not work properly yet
-				new Item { Name = "Conjured Mana Cake", SellIn = 3, Quality = 6 }
-                                          }
-
-                          };
+            var app = new Program() {
+                Items = new List<AbstractItem> {
+                    new NormalItem { Name = "+5 Dexterity Vest", SellIn = 10, Quality = 20 },
+                    new Cheese { Name = "Aged Brie", SellIn = 2, Quality = 0 },
+                    new NormalItem { Name = "Elixir of the Mongoose", SellIn = 5, Quality = 7 },
+                    new Legendary { Name = "Sulfuras, Hand of Ragnaros", SellIn = 0, Quality = 80 },
+                    new Legendary { Name = "Sulfuras, Hand of Ragnaros", SellIn = -1, Quality = 80 },
+                    new BackstagePass { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 15, Quality = 20 },
+                    new BackstagePass {Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 10, Quality = 49 },
+                    new BackstagePass {Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 5, Quality = 49 },
+                    // this conjured item does not work properly yet
+                    new NormalItem { Name = "Conjured Mana Cake", SellIn = 3, Quality = 6 }
+                }
+            };
 
             for (var i = 0; i < 31; i++)
             {
@@ -57,135 +38,78 @@ namespace GildedRose
 
         }
 
-        public void UpdateQuality()
+        public void UpdateQuality() {
+            foreach (var item in Items) {
+                item.UpdateQuality();
+            }
+        }
+
+        public class Item
         {
-            for (var i = 0; i < Items.Count; i++)
-            {
-                if (Items[i].Name != "Aged Brie" && Items[i].Name != "Backstage passes to a TAFKAL80ETC concert")
-                {
-                    if (Items[i].Quality > 0)
-                    {
-                        if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
-                        {
-                            Items[i].Quality = Items[i].Quality - 1;
-                        }
-                    }
-                }
-                else
-                {
-                    if (Items[i].Quality < 50)
-                    {
-                        Items[i].Quality = Items[i].Quality + 1;
+            public string Name { get; set; }
 
-                        if (Items[i].Name == "Backstage passes to a TAFKAL80ETC concert")
-                        {
-                            if (Items[i].SellIn < 11)
-                            {
-                                if (Items[i].Quality < 50)
-                                {
-                                    Items[i].Quality = Items[i].Quality + 1;
-                                }
-                            }
+            public int SellIn { get; set; }
 
-                            if (Items[i].SellIn < 6)
-                            {
-                                if (Items[i].Quality < 50)
-                                {
-                                    Items[i].Quality = Items[i].Quality + 1;
-                                }
-                            }
-                        }
-                    }
-                }
+            public int Quality { get; set; }
+        }
 
-                if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
-                {
-                    Items[i].SellIn = Items[i].SellIn - 1;
-                }
+        public abstract class AbstractItem : Item {
+            protected int QualityDecrease = -1;
+            public virtual void UpdateQuality() {
+                SellIn--;
+                DetermineQualityDecrease();
+                Quality += QualityDecrease;
 
-                if (Items[i].SellIn < 0)
-                {
-                    if (Items[i].Name != "Aged Brie")
-                    {
-                        if (Items[i].Name != "Backstage passes to a TAFKAL80ETC concert")
-                        {
-                            if (Items[i].Quality > 0)
-                            {
-                                if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
-                                {
-                                    Items[i].Quality = Items[i].Quality - 1;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Items[i].Quality = Items[i].Quality - Items[i].Quality;
-                        }
-                    }
-                    else
-                    {
-                        if (Items[i].Quality < 50)
-                        {
-                            Items[i].Quality = Items[i].Quality + 1;
-                        }
-                    }
+                if (Quality < 0) Quality = 0;
+            }
+
+            public virtual void DetermineQualityDecrease() {
+                if (SellIn < 0) {
+                    QualityDecrease = -2;
                 }
             }
         }
 
-    }
 
-    public class Item
-    {
-        public string Name { get; set; }
-
-        public int SellIn { get; set; }
-
-        public int Quality { get; set; }
-    }
-
-    public abstract class AbstractItem : Item {
-        protected int QualityDecrease = -1;
-        public virtual void UpdateQuality() {
-            DetermineQualityDecrease();
-            Quality += QualityDecrease;
-
-            SellIn--;
+        public class NormalItem : AbstractItem {
+            
         }
-
-        public virtual void DetermineQualityDecrease() {
-            if (SellIn < 0) {
-                QualityDecrease *= 2;
+        public class Cheese : AbstractItem {
+            public override void DetermineQualityDecrease() {
+                if (SellIn >= 0) {
+                    QualityDecrease = 1;
+                }
+                else {
+                    QualityDecrease = 2;
+                }
+                
             }
         }
-    }
-
-
-    public class NormalItem : AbstractItem {
-        
-    }
-    public class Cheese : AbstractItem {
-        public override void DetermineQualityDecrease() {
-            QualityDecrease = 1;
+        public class Legendary : AbstractItem {
+            public override void UpdateQuality() {
+            }
         }
-    }
-    public class Legendary : AbstractItem {
-        public override void UpdateQuality() {
-        }
-    }
-    public class BackstagePass : AbstractItem {
-        public override void DetermineQualityDecrease() {
-            if (SellIn < 0) {
-                QualityDecrease = 0;
+        public class BackstagePass : AbstractItem {
+            public override void UpdateQuality() {
+                base.UpdateQuality();
+
+                if (SellIn < 0 ) {
+                    Quality = 0;
+                }
             }
-            else if (SellIn <= 5) {
-                QualityDecrease = 3;
-            }
-            else if (SellIn <= 10) {
-                QualityDecrease = 2;
-            }
-            else {
-                QualityDecrease = 1;
+            public override void DetermineQualityDecrease() {
+                if (SellIn < 0) {
+                    QualityDecrease = 0;
+                }
+                else if (SellIn <= 5) {
+                    QualityDecrease = 3;
+                }
+                else if (SellIn <= 10) {
+                    QualityDecrease = 2;
+                }
+                else {
+                    QualityDecrease = 1;
+                }
             }
         }
     }
